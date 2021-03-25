@@ -40,4 +40,21 @@ def my_any?(arr)
     end
     return false
 end
+def my_all?(arr)
+    my_each(arr) do |x|
+      if !yield(x)
+        return false
+      end
+    end
+    return true
+end
+
+def my_none?(arr)
+    my_each(arr) do |x|
+      if yield(x)
+        return false
+      end
+    end
+    return true
+end
 my_map(["marwen","ali","salah"]){|i| puts"#{i}"}
