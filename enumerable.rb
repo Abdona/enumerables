@@ -57,4 +57,10 @@ def my_none?(arr)
     end
     return true
 end
+def my_inject?(arr, total)
+    my_each(arr) do |x|
+      total = yield(total, x)
+    end
+    total
+end
 my_map(["marwen","ali","salah"]){|i| puts"#{i}"}
