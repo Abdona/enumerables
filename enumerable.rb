@@ -16,5 +16,13 @@ def my_each_with_index(arr)
     end
     result
 end
-
-my_each_with_index(["marwen","ali","salah"]){|i,v| puts"#{i} #{v}"}
+def my_select(arr)
+    result = []
+    my_each(arr) do |x|
+      if yield(x)
+        result.push(x)
+      end
+    end
+    result
+end
+my_select(["marwen","ali","salah"]){|i| puts"#{i}"}
