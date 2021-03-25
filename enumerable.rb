@@ -25,4 +25,19 @@ def my_select(arr)
     end
     result
 end
-my_select(["marwen","ali","salah"]){|i| puts"#{i}"}
+def my_map(arr)
+    result = []
+    my_each(arr) do |x|
+      result.push(yield(x))
+    end
+    result
+end
+def my_any?(arr)
+    my_each(arr) do |x|
+      if yield(x)
+        return true
+      end
+    end
+    return false
+end
+my_map(["marwen","ali","salah"]){|i| puts"#{i}"}
