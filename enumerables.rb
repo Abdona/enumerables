@@ -49,7 +49,7 @@ module Enumerable
         end
         if block_given?
             self.each {
-            |x| if !(yield(x))
+            |x| unless yield(x)
                 return false
             end
             }
@@ -101,13 +101,47 @@ module Enumerable
         if block_given?
             count = 0
             self.my_each{
-            |x| count += 1 if yield(x)
-            }   
-            count         
+                |x| count += 1 if yield(x)
+            }
+            count
         end
     end
-end
 
+    def my_none?(type=nil)
+        if type==nil && !block_given? && self.length>0
+            self.my_each {
+                |x| return false if x == true
+            }
+            return true
+        end 
+
+        unless type.nil? && block_given?
+            if type.is_a?(Regexp) == true
+                self.each {
+                    |x| if x =~ type
+                        return false
+                    end
+                }
+                return true
+            end
+            self.each {
+             |x| if x.is_a?(type)
+                return false
+             end
+            }
+            return true
+        end
+        if block_given?
+            self.each {
+            |x| if yield(x)
+                return false
+            end
+            }
+            return true
+        end
+    end
+    
+end
 
 #puts %w[ant bear cat].my_any? { |word| word.length >= 3 } #=> true
 #puts %w[ant bear cat].my_any? { |word| word.length >= 4 } #=> true
@@ -141,3 +175,12 @@ end
 #puts ary.my_count               #=> 4
 #puts ary.my_count(2)            #=> 2
 #puts ary.my_count{ |x| x%2==0 } #=> 3
+
+puts %w{ant bear cat}.my_none? { |word| word.length == 5 } #=> true
+puts %w{ant bear cat}.my_none? { |word| word.length >= 4 } #=> false
+puts %w{ant bear cat}.my_none?(/d/)                        #=> true
+puts [1, 3.14, 42].my_none?(Float)                         #=> false
+puts [].my_none?                                           #=> true
+puts [nil].my_none?                                        #=> true
+puts [nil, false].my_none?                                 #=> true
+puts [false, false, false].my_none?                           #=> true
