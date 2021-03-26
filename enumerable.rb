@@ -1,20 +1,26 @@
 module Enumerable
 def my_each
-  result = []
-  length = self.length - 1
-  (0..length).each do |i|
-    result.push(yield(self[i]))
+  if block_given?
+    result = []
+    length = self.length - 1
+    (0..length).each do |i|
+      result.push(yield(self[i]))
+    end
+    result
   end
-  result
+  return "#<Enumerator: #{self}:my_each>"
 end
 
 def my_each_with_index
-  result = []
-  length = self.length - 1
-  (0..length).each do |i|
-    result.push(yield(i, self[i]))
+  if block_given?
+    result = []
+    length = self.length - 1
+    (0..length).each do |i|
+      result.push(yield(i, self[i]))
+    end
+    result
   end
-  result
+  return "#<Enumerator: #{self}:my_each>"
 end
 
 def my_select
@@ -75,8 +81,6 @@ def my_count
 end
 end
 
-x = [1,3,4,5,5]
-y=x.my_count{5}
-p y
 
-p x.my_select {|x| x!=3}
+s= [1,23,3].my_each
+puts s
