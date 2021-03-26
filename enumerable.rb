@@ -59,3 +59,10 @@ def my_inject?(arr, total)
   end
   total
 end
+
+def my_count(arr)
+  count=arr.length
+  count
+end
+
+puts my_count([1,3,4,5])
