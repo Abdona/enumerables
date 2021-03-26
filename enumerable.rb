@@ -39,12 +39,28 @@ module Enumerable
     result
   end
 
-  def my_any?
-    my_each do |x|
-      return true if yield(x)
+  def my_any?(type=nil)
+    return true if type==nil && !block_given?     
+
+    unless type.nil? && block_given?
+        self.each {
+         |x| if x.is_a?(type)
+            return true
+         else
+            return false
+         end
+        }
     end
-    false
-  end
+    if block_given?
+        self.each {
+        |x| if yield(x)
+            return true
+        end
+        }
+        return false
+    end
+
+ end
 
   def my_all?
     my_each do |x|
@@ -76,4 +92,6 @@ module Enumerable
     end
     count
   end
-end
+
+
+p [1,2,3,4,5].my_any?(Integer)
