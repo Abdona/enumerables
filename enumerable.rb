@@ -1,27 +1,19 @@
 module Enumerable
   def my_each
-    if block_given?
-      result = []
-      length = self.length - 1
-      (0..length).each do |i|
-        result.push(yield(self[i]))
-      end
-      result
+    new_arr=[]
+    for item in self do
+        new_arr.push(yield(item))
     end
-    "#<Enumerator: #{self}:my_each>"
-  end
+    new_arr
+end
 
-  def my_each_with_index
-    if block_given?
-      result = []
-      length = self.length - 1
-      (0..length).each do |i|
-        result.push(yield(i, self[i]))
-      end
-      result
+def my_each_with_index
+    new_arr=[]
+    for i in (0...self.length) do
+        new_arr.push(yield(self[i],i))
     end
-    "#<Enumerator: #{self}:my_each>"
-  end
+    new_arr
+end
 
   def my_select
     result = []
@@ -40,16 +32,23 @@ module Enumerable
   end
 
   def my_any?(type=nil)
-    return true if type==nil && !block_given?     
+    return true if type==nil && !block_given? && self.length>0
 
     unless type.nil? && block_given?
+        if type.is_a?(Regexp)==true
+            self.each {
+                |x| if x =~ type
+                    return true
+                end
+            }
+            return false
+        end
         self.each {
          |x| if x.is_a?(type)
             return true
-         else
-            return false
          end
         }
+        return false
     end
     if block_given?
         self.each {
@@ -59,15 +58,37 @@ module Enumerable
         }
         return false
     end
+end
 
- end
+def my_all?(type=nil)
+return true if self.length == 0
+return false if type==nil && !block_given?
 
-  def my_all?
-    my_each do |x|
-      return false unless yield(x)
+unless type.nil? && block_given?
+    if type.is_a?(Regexp)==true
+        self.each {
+            |x| if !(x =~ type)
+                return false
+            end
+        }
+        return true
     end
-    true
-  end
+    self.each {
+     |x| if !(x.is_a?(type))
+        return false
+     end
+    }
+    return true
+end
+if block_given?
+    self.each {
+    |x| if !(yield(x))
+        return false
+    end
+    }
+    return true
+end
+end
 
   def my_none?
     my_each do |x|
@@ -93,5 +114,3 @@ module Enumerable
     count
   end
 
-
-p [1,2,3,4,5].my_any?(Integer)
