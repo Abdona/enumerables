@@ -1,167 +1,120 @@
 module Enumerable
-  def my_any?(type = nil)
-    return true if type.nil? && !block_given? && length.positive?
-
-    unless type.nil? && block_given?
-      if type.is_a?(Regexp) == true
-        each do |x|
-          return true if x =~ type
-        end
-        return false
-      end
-      each do |x|
-        return true if x.is_a?(type)
-      end
-      return false
-    end
-    if block_given?
-      each do |x|
-        return true if yield(x)
-      end
-      false
-    end
-  end
-
-  def my_all?(type = nil)
-    return true if length.zero?
-    return false if type.nil? && !block_given?
-
-    unless type.nil? && block_given?
-      if type.is_a?(Regexp) == true
-        each do |x|
-          return false if x !~ type
-        end
-        return true
-      end
-      each do |x|
-        return false unless x.is_a?(type)
-      end
-      return true
-    end
-    if block_given?
-      each do |x|
-        return false unless yield(x)
-      end
-      true
-    end
-  end
-
   def my_each
-    new_arr = []
-    each do |item|
-      new_arr.push(yield(item))
-    end
-    new_arr
+    return to_enum(:my_each) unless block_given?
+
+    to_a.length.times { |i| yield to_a[i] }
+    self
   end
 
   def my_each_with_index
-    new_arr = []
-    (0...length).each do |i|
-      new_arr.push(yield(self[i], i))
+    return to_enum(:my_each_with_index) unless block_given?
+
+    index = 0
+    to_a.my_each do |item|
+      (yield item, index)
+      index += 1
     end
-    new_arr
+    self
   end
 
   def my_select
-    result = []
-    my_each do |x|
-      result.push(x) if yield(x)
-    end
-    result
+    return to_enum(:my_select) unless block_given?
+
+    array = []
+    to_a.my_each { |each| array.push(each) if yield each }
+    array
   end
 
-  def my_map
-    result = []
-    my_each do |x|
-      result.push(yield(x))
+  def my_all?(par = nil)
+    to_a.my_each do |each|
+      if block_given?
+        return false unless yield each
+      elsif par.instance_of? Class
+        return false unless each.is_a? par
+      else
+        return false unless par.nil? ? each : none_nil?(par, each)
+      end
     end
-    result
+    true
   end
 
-  def my_count(parm = nil)
-    return length unless block_given? || !parm.nil?
-
-    unless parm.nil?
-      count_parm = 0
-      my_each do |x|
-        count_parm += 1 if parm == x
-      end
-      return count_parm
-    end
-    if block_given?
-      count = 0
-      my_each do |x|
-        count += 1 if yield(x)
-      end
-      count
-    end
-  end
-
-  def my_none?(type = nil)
-    if type.nil? && !block_given? && length.positive?
-      my_each do |x|
-        return false if x == true
-      end
-      return true
-    end
-
-    unless type.nil? && block_given?
-      if type.is_a?(Regexp) == true
-        each do |x|
-          return false if x =~ type
-        end
+  def my_any?(par = nil)
+    to_a.my_each do |item|
+      if block_given?
+        return true if yield item
+      elsif par.instance_of? Class
+        return true if item.is_a? par
+      elsif par.nil? ? item : none_nil?(par, item)
         return true
       end
-      each do |x|
-        return false if x.is_a?(type)
-      end
-      return true
     end
+    false
+  end
+
+  def my_none?(pam = nil)
+    to_a.my_each do |i|
+      if block_given?
+        return false if yield i
+      elsif pam.instance_of? Class
+        return false unless i.is_a? pam
+      elsif pam.nil? ? i == true : none_nil?(pam, i)
+        return false
+      end
+    end
+    true
+  end
+
+  def none_nil?(pam = nil, item = nil)
+    return true if !pam.nil? && pam == item
+  end
+
+  def my_count(pam = nil, &block)
     if block_given?
-      each do |x|
-        return false if yield(x)
-      end
-      true
+      counter = to_a.my_select(&block)
+    elsif pam.nil?
+      return to_a.length
+    else
+      counter = to_a.my_select { |each| each == pam }
     end
+    counter.length
+  end
+
+  def my_map(proc = nil)
+    return to_enum unless block_given? || !proc.nil?
+
+    new_array = []
+    if proc.nil?
+      to_a.my_each { |item| new_array.push(yield item) }
+    else
+      to_a.my_each { |item| new_array.push(proc.call(item)) }
+    end
+    new_array
+  end
+
+  def my_inject(first_param = nil, second_param = nil)
+    result = nil
+    if block_given?
+      unless first_param.nil?
+        to_a.my_each { |each| first_param = yield(first_param, each) }
+        return first_param
+      end
+      to_a.my_each { |each| result = result.nil? ? each : yield(result, each) }
+    elsif symbol?(first_param)
+      to_a.my_each { |each| result = result.nil? ? each : result.send(first_param, each) }
+    elsif symbol?(second_param)
+      to_a.my_each { |each| first_param = first_param.send(second_param, each) }
+      return first_param
+    else
+      raise LocalJumpError, 'no block or arguments given'
+    end
+    result
+  end
+
+  def symbol?(param1 = nil)
+    !param1.nil? && (param1.is_a? Symbol)
   end
 end
 
-# puts %w[ant bear cat].my_any? { |word| word.length >= 3 } #=> true
-# puts %w[ant bear cat].my_any? { |word| word.length >= 4 } #=> true
-# puts %w[ant bear cat].my_any?(/t/)                        #=> false
-# puts [nil, true, 99].my_any?(Integer)                     #=> true
-# puts [nil, true, 99].my_any?                              #=> true
-# puts [].my_any?                                           #=> false
-
-# puts %w[ant bear cat].my_all? { |word| word.length >= 3 } #=> true
-# puts %w[ant bear cat].my_all? { |word| word.length >= 4 } #=> false
-# puts %w[ant bear cat].my_all?(/t/)                        #=> false
-# puts [1, 2i, 3.14].my_all?(Numeric)                       #=> true
-# puts [nil, true, 99].my_all?                              #=> false
-# puts [].my_all?                                           #=> true
-
-# puts [1,2,3].my_each{|x| x*2}
-
-# hash = Hash.new
-# %w(cat dog wombat).my_each_with_index { |item, index|
-#  hash[item] = index
-# }
-# puts hash   #=>{"cat"=>0, "dog"=>1, "wombat"=>2}
-
-# puts [1,2,3,4,5].my_select { |num|  num.even?  }
-
-# print (1..4).my_map { |i| i*i }      #=> [1, 4, 9, 16]
-
-# ary = [1, 2, 4, 2]
-# puts ary.my_count               #=> 4
-# puts ary.my_count(2)            #=> 2
-# puts ary.my_count{ |x| x%2==0 } #=> 3
-
-# puts %w{ant bear cat}.my_none? { |word| word.length == 5 } #=> true
-# puts %w{ant bear cat}.my_none? { |word| word.length >= 4 } #=> false
-# puts %w{ant bear cat}.my_none?(/d/)                        #=> true
-# puts [1, 3.14, 42].my_none?(Float)                         #=> false
-# puts [].my_none?                                           #=> true
-# puts [nil].my_none?                                        #=> true
-# puts [nil, false].my_none?                                 #=> true
-# puts [false, false, false].my_none?                           #=> true
+def multiply_els(array)
+  array.my_inject(:*)
+end
