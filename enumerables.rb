@@ -2,7 +2,8 @@ module Enumerable
   def my_each
     return to_enum(:my_each) unless block_given?
 
-    to_a.length.times { |i| yield to_a[i] }
+    arr = to_a
+    size.times { |pos| yield arr[pos] }
     self
   end
 
@@ -25,43 +26,40 @@ module Enumerable
     array
   end
 
-  def my_all?(par = nil)
-    to_a.my_each do |each|
-      if block_given?
-        return false unless yield each
-      elsif par.instance_of? Class
-        return false unless each.is_a? par
-      else
-        return false unless par.nil? ? each : none_nil?(par, each)
-      end
+  def my_all?(arg = nil)
+    if block_given?
+      false_counter = 0
+      my_each { |item| false_counter += 1 unless yield item }
+      false_counter.zero?
+    elsif arg.nil?
+      my_all? { |item| item }
+    else
+      my_all? { |item| arg == item }
     end
-    true
   end
 
-  def my_any?(par = nil)
-    to_a.my_each do |item|
-      if block_given?
-        return true if yield item
-      elsif par.instance_of? Class
-        return true if item.is_a? par
-      elsif par.nil? ? item : none_nil?(par, item)
-        return true
-      end
+  def my_any?(arg = nil)
+    if block_given?
+      true_counter = 0
+      my_each { |item| true_counter += 1 if yield item }
+      true_counter.positive?
+    elsif arg.nil?
+      my_any? { |item| item }
+    else
+      my_any? { |item| arg == item }
     end
-    false
   end
 
-  def my_none?(pam = nil)
-    to_a.my_each do |i|
-      if block_given?
-        return false if yield i
-      elsif pam.instance_of? Class
-        return false unless i.is_a? pam
-      elsif pam.nil? ? i == true : none_nil?(pam, i)
-        return false
-      end
+  def my_none?(arg = nil)
+    if block_given?
+      true_counter = 0
+      my_each { |item| true_counter += 1 if yield item }
+      true_counter.zero?
+    elsif arg.nil?
+      my_none? { |item| item }
+    else
+      my_none? { |item| arg == item }
     end
-    true
   end
 
   def none_nil?(pam = nil, item = nil)
@@ -118,3 +116,7 @@ end
 def multiply_els(array)
   array.my_inject(:*)
 end
+
+words = %w[dogs door rod blade]
+puts words.my_none?(/d/)
+puts words.none?(/d/)
