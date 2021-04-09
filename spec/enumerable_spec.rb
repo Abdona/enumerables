@@ -110,10 +110,17 @@ describe Enumerable do
   end
   # ##my_count####
   describe '#my_count' do
-    it 'check my_coubt' do
+    it 'check my_count' do
       expect(int_array.my_count).to eql(4)
       expect(int_array.my_count { |item| item > 1 }).to eql(3)
       expect(str_array.my_count { |item| item == 'schwarze' }).to eql(1)
+    end
+  end
+
+  # #my_map####
+  describe '#my_map' do
+    it 'check my_map' do
+      expect(int_array.my_map { |item| item**2 }).to eql([1, 4, 9, 16])
     end
   end
 end
