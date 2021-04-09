@@ -57,4 +57,13 @@ describe Enumerable do
       expect(empty_array.my_all?).to eql(true)
     end
   end
+  # ######my_each#####
+  describe '#my_each' do
+    it 'check my_each' do
+      expect(int_array.my_each { |x| x * 4 }).to eql([4, 8, 12, 16])
+      expect(str_array.my_each do |x|
+               "#{x}_extra_string"
+             end).to eql(%w[bear_extra_string schwarze_extra_string kalt_extra_string])
+    end
+  end
 end
