@@ -100,4 +100,12 @@ describe Enumerable do
       expect(empty_array.my_none?).to eql(true)
     end
   end
+  ###my_select####
+  describe '#my_select' do
+    it 'check my_select' do
+        expect(int_array.my_select{|item| item%2==0}).to eql([2,4])
+        expect(str_array.my_select{|item| item.length>1}).to eql(['bear','schwarze','kalt'])
+        expect(mix_array.my_select{|item| item!=nil}).to eql([true,99])
+    end
+  end
 end
