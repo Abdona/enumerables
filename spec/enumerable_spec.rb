@@ -66,4 +66,12 @@ describe Enumerable do
              end).to eql(%w[bear_extra_string schwarze_extra_string kalt_extra_string])
     end
   end
+  describe '#my_each_with_index' do
+  it 'check my_each_with_index' do
+    expect(int_array.my_each_with_index { |item,index| item if (index%2==0) }).to eql([1,nil,3,nil])
+    expect(str_array.my_each_with_index do |item,index|
+             "#{item}_extra_string"
+           end).to eql(%w[bear_extra_string schwarze_extra_string kalt_extra_string])
+  end
+end
 end
