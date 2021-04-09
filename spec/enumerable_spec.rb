@@ -108,4 +108,12 @@ describe Enumerable do
         expect(mix_array.my_select{|item| item!=nil}).to eql([true,99])
     end
   end
+    ###my_count####
+    describe '#my_count' do
+    it 'check my_coubt' do
+        expect(int_array.my_count).to eql(4)
+        expect(int_array.my_count{|item| item>1}).to eql(3)
+        expect(str_array.my_count{|item| item=='schwarze'}).to eql(1)
+    end
+  end
 end
