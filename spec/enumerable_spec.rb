@@ -74,4 +74,30 @@ describe Enumerable do
              end).to eql(%w[bear_extra_string schwarze_extra_string kalt_extra_string])
     end
   end
+  # ##my_none#####
+  describe '#my_none?' do
+    it 'check my_none for int array' do
+      expect(int_array.my_none?).to eql(false)
+      expect(int_array.my_none?(1)).to eql(false)
+      expect(int_array.my_none? { |x| x > 1 }).to eql(false)
+      expect(int_array.my_none?(/d/)).to eql(true)
+      expect(int_array.my_none?(10)).to eql(true)
+      expect(int_array.my_none? { |x| x > 4 }).to eql(true)
+    end
+    it 'check my_none for string array' do
+      expect(str_array.my_none?).to eql(false)
+      expect(str_array.my_none?('schwarze')).to eql(false)
+      expect(str_array.my_none? { |x| x.length > 1 }).to eql(false)
+      expect(str_array.my_none?('cold')).to eql(true)
+      expect(str_array.my_none? { |x| x.length > 8 }).to eql(true)
+    end
+    it 'check my_none for mix array' do
+      expect(mix_array.my_none?).to eql(false)
+      expect(mix_array.my_none?(Integer)).to eql(false)
+      expect(mix_array.my_none?('Integer')).to eql(true)
+    end
+    it 'check empty array' do
+      expect(empty_array.my_none?).to eql(true)
+    end
+  end
 end
