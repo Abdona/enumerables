@@ -13,6 +13,14 @@ To get a local copy up and running:
 
 1) Clone the repo or download the Zip folder
 2) Install ruby and run "ruby enumerables.rb" in your terminal
+
+## Test with RSpec
+
+1. open Terminal
+2. cd to project folder using `cd enumerables`
+3. use `rspec`
+
+
 ## Authors
 
 👤 **Marwen Brini**
